@@ -50,7 +50,7 @@ app.post("/login", (req, res) => {
 })
 
 app.post("/logout", (req, res) => {
-  res.cookie('username', "");
+  res.clearCookie('username', req.body.username);
   res.redirect("/urls");
 })
 
