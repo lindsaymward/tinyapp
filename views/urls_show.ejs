@@ -16,15 +16,17 @@
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= longURL %></h5>
+        <h5 class="card-title">TinyURL for: <%= urls[id].longURL %></h5>
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
       </div>
+      <% if (urls[id].userID === user.id) { %>
       <div class="card-footer text-muted">
         <h3>Edit</h3>
         <form method="POST" action="/urls/<%= id %>"><label for=newURL>New URL:</label><input type="text" id="newURL" name="newURL" class="m-1"><button type="submit" class="btn btn-primary">Submit</button></form>
       </div>
+      <% } %>
     </div>
     <!-- Bootstrap JS -->
     <script

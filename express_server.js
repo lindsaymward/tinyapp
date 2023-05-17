@@ -56,9 +56,10 @@ app.get("/login", (req, res) => {
 app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   if (!userId) {
-    return res.send('<p>Please log in or register.</p>')
+    return res.send('<p>Please log in or register.</p>');
   }
-  const templateVars = { urls: urlDatabase, user: users[userId] };
+  const userURL = getURLForUser(userId);
+  const templateVars = { urls: userURL, user: users[userId] };
   res.render("urls_index", templateVars);
 });
 
@@ -73,7 +74,14 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const userId = req.cookies.user_id;
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[userId] };
+  if (!userId) {
+    return res.send("Please login to see this page.");
+  }
+  const userURL = getURLForUser(userId);
+  if (!userURL[req.params.id]) {
+    return res.send("This URL does not exist in your account.");
+  }
+  const templateVars = { urls: userURL, id: req.params.id, user: users[userId] };
   res.render("urls_show", templateVars);
 });
 
@@ -83,7 +91,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/u/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
-    return res.send("Short URL does not exist. Please login and create it first.")
+    return res.send("Short URL does not exist. Please login and create it first.");
   }
   const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
@@ -92,10 +100,10 @@ app.get("/u/:id", (req, res) => {
 app.post("/login", (req, res) => {
   const user = getUserByEmail(req.body.email);
   if (!user) {
-    return res.status(403).send("User not found. Please register first.")
+    return res.status(403).send("User not found. Please register first.");
   }
   if (user.password !== req.body.password) {
-    return res.status(403).send("Invalid password.")
+    return res.status(403).send("Invalid password.");
   }
   res.cookie('user_id', user.id);
   res.redirect("/urls");
@@ -126,22 +134,48 @@ app.post("/logout", (req, res) => {
 
 app.post("/urls", (req, res) => {
   if (!req.cookies.user_id) {
-    res.send("Please login to use TinyApp")
+    res.send("Please login to use TinyApp");
   }
   let id = generateRandomString();
   urlDatabase[id] = {
     longURL: req.body.longURL,
     userID: req.cookies.user_id
-  }
+  };
   res.redirect(`/urls/${id}`);
 });
 
 app.post("/urls/:id", (req, res) => {
+  if (!req.cookies.user_id) {
+    return res.status(401).send("Please login to use TinyApp");
+  }
+
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send("That shortened URL does not exist.");
+  }
+
+  const userURL = getURLForUser(req.cookies.user_id);
+  if (!userURL[req.params.id]) {
+    return res.status(401).send("That URL is not a part of your account.")
+  }
+
   urlDatabase[req.params.id].longURL = req.body.newURL;
   res.redirect(`/urls`);
 });
 
 app.post("/urls/:id/delete", (req, res) => {
+  if (!req.cookies.user_id) {
+    return res.status(401).send("Please login to use TinyApp");
+  }
+
+  if (!urlDatabase[req.params.id]) {
+    return res.status(404).send("That shortened URL does not exist.");
+  }
+
+  const userURL = getURLForUser(req.cookies.user_id);
+  if (!userURL[req.params.id]) {
+    return res.status(401).send("That URL is not a part of your account.")
+  }
+
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
 });
@@ -168,17 +202,22 @@ function getUserByEmail(email) {
   return null;
 }
 
-// function getURLForUser(userID) {
-//   if (!userID) {
-//     return null;
-//   }
-//   const id = userID;
-//   const userDatabase = {};
-//   for (const entry in urlDatabase) {
-//     if (urlDatabase[entry][id]) {
-//       userDatabase 
-//     }
-//   }
-//   const url = urlDatabase[id].longURL;
-//   return url;
-// }
+function getURLForUser(userID) {
+  if (!userID) {
+    return null;
+  }
+  const id = userID;
+  const userDatabase = {};
+  for (const entry in urlDatabase) {
+    if (urlDatabase[entry].userID === id) {
+      userDatabase[entry] = {
+        longURL: urlDatabase[entry].longURL,
+        userID: id
+      };
+    }
+  }
+  if (Object.keys(userDatabase).length === 0) {
+    return null;
+  }
+  return userDatabase;
+}
