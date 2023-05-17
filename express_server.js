@@ -71,7 +71,10 @@ app.get("/u/:id", (req, res) => {
 app.post("/login", (req, res) => {
   const user = getUserByEmail(req.body.email);
   if (!user) {
-    res.redirect("/register")
+    res.status(403).send("User not found. Please register first.")
+  }
+  if (user.password !== req.body.password) {
+    res.status(403).send("Invalid password.")
   }
   res.cookie('user_id', user.id);
   res.redirect("/urls");
@@ -96,8 +99,8 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id', req.body.username);
-  res.redirect("/urls");
+  res.clearCookie('user_id');
+  res.redirect("/login");
 });
 
 app.post("/urls", (req, res) => {
