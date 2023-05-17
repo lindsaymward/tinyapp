@@ -30,12 +30,18 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  if (req.cookies.user_id) {
+    return res.redirect("/urls");
+  }
   const userId = req.cookies.user_id;
   const templateVars = { user: users[userId] };
   res.render("register", templateVars);
 });
 
 app.get("/login", (req, res) => {
+  if (req.cookies.user_id) {
+    return res.redirect("/urls");
+  }
   const userId = req.cookies.user_id;
   const templateVars = { user: users[userId] };
   res.render("login", templateVars);
@@ -49,6 +55,9 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies.user_id;
+  if (!userId) {
+    return res.redirect("/login");
+  }
   const templateVars = { user: users[userId] };
   res.render("urls_new", templateVars);
 });
@@ -64,6 +73,9 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/u/:id", (req, res) => {
+  if (!urlDatabase[req.params.id]) {
+    return res.send("Short URL does not exist. Please login and create it first.")
+  }
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
@@ -104,6 +116,9 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  if (!req.cookies.user_id) {
+    res.send("Please login to use TinyApp")
+  }
   let id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
   res.redirect(`/urls/${id}`);
