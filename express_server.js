@@ -72,7 +72,7 @@ app.post("/register", (req, res) => {
   if (!user.email || !user.password) {
     return res.status(400).send('Please enter an email and password');
   }
-  if (userLookup(user.email)) {
+  if (getUserByEmail(user.email)) {
     return res.status(400).send('Unable to register. Please try a different e-mail.');
   }
   const userId = generateRandomString();
@@ -82,7 +82,6 @@ app.post("/register", (req, res) => {
     password: user.password
   };
   res.cookie('user_id', userId);
-  console.log(users);
   res.redirect('/urls');
 });
 
@@ -120,7 +119,7 @@ function generateRandomString() {
   return shortURL;
 }
 
-function userLookup(email) {
+function getUserByEmail(email) {
   for (const existingUser in users) {
     if (email === users[existingUser].email) {
       return users[existingUser];
