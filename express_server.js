@@ -71,10 +71,10 @@ app.get("/u/:id", (req, res) => {
 app.post("/login", (req, res) => {
   const user = getUserByEmail(req.body.email);
   if (!user) {
-    res.status(403).send("User not found. Please register first.")
+    return res.status(403).send("User not found. Please register first.")
   }
   if (user.password !== req.body.password) {
-    res.status(403).send("Invalid password.")
+    return res.status(403).send("Invalid password.")
   }
   res.cookie('user_id', user.id);
   res.redirect("/urls");
