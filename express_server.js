@@ -7,6 +7,19 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+const users = {
+  user1: {
+    id: "user1",
+    email: "a@a.com",
+    password: "1111"
+  },
+  user2: {
+    id: "user2",
+    email: "b@b.com",
+    password: "2222"
+  }
+};
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -52,6 +65,19 @@ app.get('/hello', (req, res) => {
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect("/urls");
+})
+
+app.post("/register", (req, res) => {
+  const user = req.body;
+  const userId = generateRandomString();
+  users[userId] = {
+    id: userId,
+    email: user.email,
+    password: user.password
+  }
+  res.cookie('user_id', userId);
+  console.log(users);
+  res.redirect('/urls');
 })
 
 app.post("/logout", (req, res) => {
