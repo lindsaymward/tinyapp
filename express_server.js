@@ -35,6 +35,12 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
+app.get("/login", (req, res) => {
+  const userId = req.cookies.user_id;
+  const templateVars = { user: users[userId] };
+  res.render("login", templateVars);
+});
+
 app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   const templateVars = { urls: urlDatabase, user: users[userId] };
@@ -63,7 +69,11 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie('user_id', req.body.username);
+  const user = getUserByEmail(req.body.email);
+  if (!user) {
+    res.redirect("/register")
+  }
+  res.cookie('user_id', user.id);
   res.redirect("/urls");
 });
 

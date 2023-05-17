@@ -7,14 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous" />
-  <title>Register for TinyApp</title>
+  <title>Login to TinyApp</title>
 </head>
 
 <body>
   <%- include('partials/_header') %>
     <main style="margin: 1em;">
-      <form method="POST" action="/register">
-        <h3>Register for a TinyApp Account</h3>
+      <form method="POST" action="/login">
+        <h3>Login to your TinyApp Account</h3>
         <div class="form-group">
           <label for="email">Email address</label>
           <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp"
@@ -24,7 +24,7 @@
           <label for="password">Password</label>
           <input type="password" name="password" class="form-control" id="password" placeholder="Password">
         </div>
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="submit" class="btn btn-primary">Login</button>
       </form>
     </main>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
