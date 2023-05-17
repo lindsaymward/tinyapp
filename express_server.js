@@ -43,7 +43,7 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const userId = req.cookies.user_id;
-  const templateVars = { user: users[userId] }
+  const templateVars = { user: users[userId] };
   res.render("urls_new", templateVars);
 });
 
@@ -65,51 +65,66 @@ app.get("/u/:id", (req, res) => {
 app.post("/login", (req, res) => {
   res.cookie('user_id', req.body.username);
   res.redirect("/urls");
-})
+});
 
 app.post("/register", (req, res) => {
   const user = req.body;
+  if (!user.email || !user.password) {
+    return res.status(400).send('Please enter an email and password');
+  }
+  if (userLookup(user.email)) {
+    return res.status(400).send('Unable to register. Please try a different e-mail.');
+  }
   const userId = generateRandomString();
   users[userId] = {
     id: userId,
     email: user.email,
     password: user.password
-  }
+  };
   res.cookie('user_id', userId);
   console.log(users);
   res.redirect('/urls');
-})
+});
 
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id', req.body.username);
   res.redirect("/urls");
-})
+});
 
 app.post("/urls", (req, res) => {
   let id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
   res.redirect(`/urls/${id}`);
-})
+});
 
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body.newURL;
   res.redirect(`/urls`);
-})
+});
 
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls");
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
 function generateRandomString() {
-  const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let shortURL = '';
   for (let i = 0; i < 6; i++) {
     shortURL += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return shortURL;
+}
+
+function userLookup(email) {
+  for (const existingUser in users) {
+    if (email === users[existingUser].email) {
+      return users[existingUser];
+    }
+  }
+  return null;
 }
