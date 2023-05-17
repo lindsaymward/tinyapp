@@ -21,8 +21,14 @@ const users = {
 };
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "user1"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "user2"
+  }
 };
 
 app.get("/", (req, res) => {
@@ -49,6 +55,9 @@ app.get("/login", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
+  if (!userId) {
+    return res.send('<p>Please log in or register.</p>')
+  }
   const templateVars = { urls: urlDatabase, user: users[userId] };
   res.render("urls_index", templateVars);
 });
@@ -64,7 +73,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   const userId = req.cookies.user_id;
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[userId] };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, user: users[userId] };
   res.render("urls_show", templateVars);
 });
 
@@ -76,7 +85,7 @@ app.get("/u/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.send("Short URL does not exist. Please login and create it first.")
   }
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
 });
 
@@ -120,12 +129,15 @@ app.post("/urls", (req, res) => {
     res.send("Please login to use TinyApp")
   }
   let id = generateRandomString();
-  urlDatabase[id] = req.body.longURL;
+  urlDatabase[id] = {
+    longURL: req.body.longURL,
+    userID: req.cookies.user_id
+  }
   res.redirect(`/urls/${id}`);
 });
 
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.newURL;
+  urlDatabase[req.params.id].longURL = req.body.newURL;
   res.redirect(`/urls`);
 });
 
@@ -155,3 +167,18 @@ function getUserByEmail(email) {
   }
   return null;
 }
+
+// function getURLForUser(userID) {
+//   if (!userID) {
+//     return null;
+//   }
+//   const id = userID;
+//   const userDatabase = {};
+//   for (const entry in urlDatabase) {
+//     if (urlDatabase[entry][id]) {
+//       userDatabase 
+//     }
+//   }
+//   const url = urlDatabase[id].longURL;
+//   return url;
+// }
