@@ -12,12 +12,12 @@ const users = {
   user1: {
     id: "user1",
     email: "a@a.com",
-    password: "1111"
+    password: bcrypt.hashSync("1111", 10)
   },
   user2: {
     id: "user2",
     email: "b@b.com",
-    password: "2222"
+    password: bcrypt.hashSync("2222", 10)
   }
 };
 
@@ -100,15 +100,14 @@ app.get("/u/:id", (req, res) => {
 
 app.post("/login", (req, res) => {
   const user = getUserByEmail(req.body.email);
-  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   if (!user) {
     return res.status(403).send("User not found. Please register first.");
   }
-  if (!bcrypt.compareSync(req.body.password, hashedPassword)) {
+  if (!bcrypt.compareSync(req.body.password, user.password)) {
     return res.status(403).send("Invalid password.");
   }
   res.cookie('user_id', user.id);
-  res.redirect("/urls");
+  return res.redirect("/urls");
 });
 
 app.post("/register", (req, res) => {
