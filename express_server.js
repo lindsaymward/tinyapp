@@ -12,6 +12,8 @@ app.use(cookieSession({
   keys: ['key1', 'key2'],
 }));
 
+// DATABASES 
+
 const users = {
   user1: {
     id: "user1",
@@ -36,17 +38,10 @@ const urlDatabase = {
   }
 };
 
+// GET
+
 app.get("/", (req, res) => {
   res.redirect("/login");
-});
-
-app.get("/register", (req, res) => {
-  if (req.session.user_id) {
-    return res.redirect("/urls");
-  }
-  const userId = req.session.user_id;
-  const templateVars = { user: users[userId] };
-  res.render("register", templateVars);
 });
 
 app.get("/login", (req, res) => {
@@ -56,6 +51,15 @@ app.get("/login", (req, res) => {
   const userId = req.session.user_id;
   const templateVars = { user: users[userId] };
   res.render("login", templateVars);
+});
+
+app.get("/register", (req, res) => {
+  if (req.session.user_id) {
+    return res.redirect("/urls");
+  }
+  const userId = req.session.user_id;
+  const templateVars = { user: users[userId] };
+  res.render("register", templateVars);
 });
 
 app.get("/urls", (req, res) => {
@@ -90,10 +94,6 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
 app.get("/u/:id", (req, res) => {
   if (!urlDatabase[req.params.id]) {
     return res.send("Short URL does not exist. Please login and create it first.");
@@ -101,6 +101,8 @@ app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id].longURL;
   res.redirect(longURL);
 });
+
+// POST
 
 app.post("/login", (req, res) => {
   const user = getUserByEmail(req.body.email, users);
@@ -112,6 +114,11 @@ app.post("/login", (req, res) => {
   }
   req.session.user_id = user.id;
   return res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+  req.session = null;
+  res.redirect("/login");
 });
 
 app.post("/register", (req, res) => {
@@ -131,11 +138,6 @@ app.post("/register", (req, res) => {
   };
   req.session.user_id = userId;
   res.redirect('/urls');
-});
-
-app.post("/logout", (req, res) => {
-  req.session = null;
-  res.redirect("/login");
 });
 
 app.post("/urls", (req, res) => {
