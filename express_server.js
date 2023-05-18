@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const { getUserByEmail, getURLForUser, generateRandomString } = require('helpers');
 const PORT = 8080;
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
@@ -62,7 +63,7 @@ app.get("/urls", (req, res) => {
   if (!userId) {
     return res.send('<p>Please log in or register.</p>');
   }
-  const userURL = getURLForUser(userId);
+  const userURL = getURLForUser(userId, urlDatabase);
   const templateVars = { urls: userURL, user: users[userId] };
   res.render("urls_index", templateVars);
 });
@@ -81,7 +82,7 @@ app.get("/urls/:id", (req, res) => {
   if (!userId) {
     return res.send("Please login to see this page.");
   }
-  const userURL = getURLForUser(userId);
+  const userURL = getURLForUser(userId, urlDatabase);
   if (!userURL[req.params.id]) {
     return res.send("This URL does not exist in your account.");
   }
@@ -102,7 +103,7 @@ app.get("/u/:id", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  const user = getUserByEmail(req.body.email);
+  const user = getUserByEmail(req.body.email, users);
   if (!user) {
     return res.status(403).send("User not found. Please register first.");
   }
@@ -118,7 +119,7 @@ app.post("/register", (req, res) => {
   if (!user.email || !user.password) {
     return res.status(400).send('Please enter an email and password');
   }
-  if (getUserByEmail(user.email)) {
+  if (getUserByEmail(user.email, users)) {
     return res.status(400).send('Unable to register. Please try a different e-mail.');
   }
   const hashedPassword = bcrypt.hashSync(user.password, 10);
@@ -128,7 +129,6 @@ app.post("/register", (req, res) => {
     email: user.email,
     password: hashedPassword
   };
-  console.log('registration password: ', users[userId].password);
   req.session.user_id = userId;
   res.redirect('/urls');
 });
@@ -159,7 +159,7 @@ app.post("/urls/:id", (req, res) => {
     return res.status(404).send("That shortened URL does not exist.");
   }
 
-  const userURL = getURLForUser(req.session.user_id);
+  const userURL = getURLForUser(req.session.user_id, urlDatabase);
   if (!userURL[req.params.id]) {
     return res.status(401).send("That URL is not a part of your account.")
   }
@@ -178,7 +178,7 @@ app.post("/urls/:id/delete", (req, res) => {
     return res.status(404).send("That shortened URL does not exist.");
   }
 
-  const userURL = getURLForUser(req.session.user_id);
+  const userURL = getURLForUser(req.session.user_id, urlDatabase);
   if (!userURL[req.params.id]) {
     return res.status(401).send("That URL is not a part of your account.")
   }
@@ -191,40 +191,5 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-function generateRandomString() {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let shortURL = '';
-  for (let i = 0; i < 6; i++) {
-    shortURL += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return shortURL;
-}
 
-function getUserByEmail(email) {
-  for (const existingUser in users) {
-    if (email === users[existingUser].email) {
-      return users[existingUser];
-    }
-  }
-  return null;
-}
 
-function getURLForUser(userID) {
-  if (!userID) {
-    return null;
-  }
-  const id = userID;
-  const userDatabase = {};
-  for (const entry in urlDatabase) {
-    if (urlDatabase[entry].userID === id) {
-      userDatabase[entry] = {
-        longURL: urlDatabase[entry].longURL,
-        userID: id
-      };
-    }
-  }
-  if (Object.keys(userDatabase).length === 0) {
-    return null;
-  }
-  return userDatabase;
-}
