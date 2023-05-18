@@ -23,7 +23,6 @@ function getURLForUser(user, database) {
   const id = user;
   const userDatabase = {};
   for (const entry in database) {
-    console.log(entry);
     if (database[entry].userID === id) {
       userDatabase[entry] = {
         longURL: database[entry].longURL,

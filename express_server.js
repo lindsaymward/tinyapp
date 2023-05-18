@@ -37,7 +37,7 @@ const urlDatabase = {
 };
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/login");
 });
 
 app.get("/register", (req, res) => {
@@ -147,7 +147,6 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userID: req.session.user_id
   };
-  console.log(urlDatabase);
   res.redirect(`/urls/${id}`);
 });
 
