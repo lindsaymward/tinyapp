@@ -161,10 +161,10 @@ app.post("/urls/:id", (req, res) => {
 
   const userURL = getURLForUser(req.session.user_id, urlDatabase);
   if (!userURL[req.params.id]) {
-    return res.status(401).send("That URL is not a part of your account.")
+    return res.status(401).send("That URL is not a part of your account.");
   }
   if (req.body.newURL) {
-  urlDatabase[req.params.id].longURL = req.body.newURL;
+    urlDatabase[req.params.id].longURL = req.body.newURL;
   }
   res.redirect(`/urls`);
 });
@@ -180,7 +180,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
   const userURL = getURLForUser(req.session.user_id, urlDatabase);
   if (!userURL[req.params.id]) {
-    return res.status(401).send("That URL is not a part of your account.")
+    return res.status(401).send("That URL is not a part of your account.");
   }
 
   delete urlDatabase[req.params.id];

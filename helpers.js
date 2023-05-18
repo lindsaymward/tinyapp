@@ -1,22 +1,22 @@
-function generateRandomString() {
+const generateRandomString = () => {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let shortURL = '';
   for (let i = 0; i < 6; i++) {
     shortURL += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return shortURL;
-}
+};
 
-function getUserByEmail(email, database) {
+const getUserByEmail = (email, database) => {
   for (const existingUser in database) {
     if (email === database[existingUser].email) {
       return database[existingUser];
     }
   }
   return null;
-}
+};
 
-function getURLForUser(user, database) {
+const getURLForUser = (user, database) => {
   if (!user) {
     return null;
   }
@@ -31,6 +31,6 @@ function getURLForUser(user, database) {
     }
   }
   return userDatabase;
-}
+};
 
 module.exports = { generateRandomString, getUserByEmail, getURLForUser };
