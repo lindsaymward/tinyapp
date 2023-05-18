@@ -16,22 +16,20 @@ function getUserByEmail(email, database) {
   return null;
 }
 
-function getURLForUser(userID, database) {
-  if (!userID) {
+function getURLForUser(user, database) {
+  if (!user) {
     return null;
   }
-  const id = userID;
+  const id = user;
   const userDatabase = {};
   for (const entry in database) {
+    console.log(entry);
     if (database[entry].userID === id) {
-      database[entry] = {
+      userDatabase[entry] = {
         longURL: database[entry].longURL,
         userID: id
       };
     }
-  }
-  if (Object.keys(userDatabase).length === 0) {
-    return null;
   }
   return userDatabase;
 }

@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { getUserByEmail, getURLForUser, generateRandomString } = require('helpers');
+const { getUserByEmail, getURLForUser, generateRandomString } = require('./helpers');
 const PORT = 8080;
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
@@ -147,6 +147,7 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userID: req.session.user_id
   };
+  console.log(urlDatabase);
   res.redirect(`/urls/${id}`);
 });
 
