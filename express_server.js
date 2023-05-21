@@ -44,6 +44,8 @@ const urlDatabase = {
   }
 };
 
+const userError = "User not found. Please register first."
+const passError = "Invalid password."
 
 // GET
 
@@ -56,7 +58,7 @@ app.get("/login", (req, res) => {
     return res.redirect("/urls");
   }
   const userId = req.session.user_id;
-  const templateVars = { user: users[userId] };
+  const templateVars = { user: users[userId], error: "" };
   res.render("login", templateVars);
 });
 
@@ -114,11 +116,12 @@ app.get("/u/:id", (req, res) => {
 
 app.post("/login", (req, res) => {
   const user = getUserByEmail(req.body.email, users);
+
   if (!user) {
-    return res.status(403).send("User not found. Please register first.");
+    res.render("register", { user: "", error: userError });
   }
   if (!bcrypt.compareSync(req.body.password, user.password)) {
-    return res.status(403).send("Invalid password.");
+    res.render("login", { user: "", error: passError });
   }
   req.session.user_id = user.id;
   return res.redirect("/urls");
