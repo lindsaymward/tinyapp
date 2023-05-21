@@ -20,6 +20,9 @@
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
+        <p class="card-text">
+          Total visits: <%= visits %></a>
+        </p>
       </div>
       <% if (urls[id].userID === user.id) { %>
       <div class="card-footer text-muted">

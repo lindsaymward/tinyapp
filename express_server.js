@@ -32,13 +32,18 @@ const users = {
 const urlDatabase = {
   "b2xVn2": {
     longURL: "http://www.lighthouselabs.ca",
-    userID: "user1"
+    userID: "user1",
+    totalVisits: 0,
+    uniqueVisits: 0
   },
   "9sm5xK": {
     longURL: "http://www.google.com",
-    userID: "user2"
+    userID: "user2",
+    totalVisits: 0,
+    uniqueVisits: 0
   }
 };
+
 
 // GET
 
@@ -92,7 +97,7 @@ app.get("/urls/:id", (req, res) => {
   if (!userURL[req.params.id]) {
     return res.send("This URL does not exist in your account.");
   }
-  const templateVars = { urls: userURL, id: req.params.id, user: users[userId] };
+  const templateVars = { urls: userURL, id: req.params.id, user: users[userId], visits: urlDatabase[req.params.id].totalVisits };
   res.render("urls_show", templateVars);
 });
 
@@ -101,6 +106,7 @@ app.get("/u/:id", (req, res) => {
     return res.send("Short URL does not exist. Please login and create it first.");
   }
   const longURL = urlDatabase[req.params.id].longURL;
+  urlDatabase[req.params.id].totalVisits++
   res.redirect(longURL);
 });
 
@@ -149,7 +155,9 @@ app.post("/urls", (req, res) => {
   let id = generateRandomString();
   urlDatabase[id] = {
     longURL: req.body.longURL,
-    userID: req.session.user_id
+    userID: req.session.user_id,
+    totalVisits: 0,
+    uniqueVisits: 0
   };
   res.redirect(`/urls/${id}`);
 });
