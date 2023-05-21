@@ -1,4 +1,5 @@
 const express = require('express');
+const methodOverride = require('method-override');
 const app = express();
 const { getUserByEmail, getURLForUser, generateRandomString } = require('./helpers');
 const PORT = 8080;
@@ -7,6 +8,7 @@ const bcrypt = require('bcryptjs');
 
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2'],
@@ -152,7 +154,8 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
-app.post("/urls/:id", (req, res) => {
+// PUT (using method-override)
+app.put("/urls/:id", (req, res) => {
   if (!req.session.user_id) {
     return res.status(401).send("Please login to use TinyApp");
   }
@@ -171,7 +174,8 @@ app.post("/urls/:id", (req, res) => {
   res.redirect(`/urls`);
 });
 
-app.post("/urls/:id/delete", (req, res) => {
+// DELETE (using method-override)
+app.delete("/urls/:id/delete", (req, res) => {
   if (!req.session.user_id) {
     return res.status(401).send("Please login to use TinyApp");
   }
